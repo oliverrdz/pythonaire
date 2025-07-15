@@ -37,6 +37,7 @@ if __name__ == "__main__":
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS accounts(
         account_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+        name text NOT NULL,
         type_id integer NOT NULL,
         total float NOT NULL,
         FOREIGN KEY (type_id) REFERENCES account_type(type_id)
