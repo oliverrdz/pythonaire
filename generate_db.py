@@ -8,9 +8,9 @@ def connect_DB(db_name):
         conn = sqlite3.connect(db_name)
         # Needs to be added according to ChatGPT 4o:
         conn.execute("PRAGMA foreign_keys = ON;")
-        print(f"Connected to {db_name}.")
+        print(f"\nConnected to {db_name}.")
     except sqlite3.Error as error:
-        print(f"Falied to connect to {db_name}.", error)
+        print(f"\nFalied to connect to {db_name}.", error)
     if conn:
         return conn
     else:
@@ -18,7 +18,7 @@ def connect_DB(db_name):
 
 if __name__ == "__main__":
     # Connect or create to DB
-    file_name = "data.db"
+    file_name = "sqlite.db"
     conn = connect_DB(file_name)
 
     if conn:
@@ -39,7 +39,7 @@ if __name__ == "__main__":
         account_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
         name text NOT NULL,
         type_id integer NOT NULL,
-        total float NOT NULL,
+        initial_ammount float NOT NULL,
         FOREIGN KEY (type_id) REFERENCES account_type(type_id)
         )
         """)
