@@ -6,6 +6,8 @@ def connect_DB(db_name):
     """
     try:
         conn = sqlite3.connect(db_name)
+        # Needs to be added according to ChatGPT 4o:
+        conn.execute("PRAGMA foreign_keys = ON;")
         print(f"Connected to {db_name}.")
     except sqlite3.Error as error:
         print(f"Falied to connect to {db_name}.", error)
