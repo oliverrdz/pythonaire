@@ -5,14 +5,29 @@ def account_type(conn, cursor, data):
     """
     Insert data into account_type table
     """
+    account_types = 0
+    try:
+        cursor.execute("""
+            SELECT type FROM account_type
+        """)
+        rows = cursor.fetchall()
+        account_types = rows#[dict(row) for row in rows]
+    except:
+        pass
+
+    if account_types:
+        if (data[0],) in account_types:
+            print(f"Account type {data[0]} already exists.")
+            return 0
     cursor.execute("INSERT INTO account_type (type) VALUES (?)", data)
     conn.commit()
-    print("Populated account_type table")
+    print(f"Added account type {data[0]}.")
 
 def account(conn, cursor, data):
     """
     Inserts data into accounts table
     """
+
     cursor.execute("""
     INSERT INTO accounts (name, type_id, total) \
     VALUES (?, ?, ?)
@@ -48,19 +63,20 @@ if __name__ == "__main__":
     # Connect to DB
     file_name = "sqlite.db"
     conn = db.connect_DB(file_name)
+    #conn.row_factory = sqlite3.Row
 
-    acc_type = ("Debit",)
+    acc_type = ("Credit",)
     name = "Bank1"
     initial_ammount = 0
     ammount_added = 100
     note = "Transfer"
     
-    if 1:
-        cursor = conn.cursor()
+    cursor = conn.cursor()
 
-        # Load account_type data
-        account_type(conn, cursor, acc_type)
+    # Load account_type data
+    account_type(conn, cursor, acc_type)
 
+    if 0:
         # Find type_id from accounts table
         cursor.execute("SELECT type_id FROM account_type \
                         WHERE type = ?", acc_type)
