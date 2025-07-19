@@ -1,18 +1,11 @@
 import sqlite3
 import generate_db as db
 
-def account_type(cursor):
+def account_type(conn, cursor, data):
     """
-    Insert into account_type table
+    Insert data into account_type table
     """
-    account_types = [
-        ("Debit",),
-        ("Credit",),
-        ("Savings",),
-        ("Investing",)
-    ]
-    cursor.executemany("INSERT INTO account_type (type) VALUES (?)",
-        account_types)
+    cursor.execute("INSERT INTO account_type (type) VALUES (?)", data)
     conn.commit()
     print("Populated account_type table")
 
@@ -53,7 +46,7 @@ if __name__ == "__main__":
         cursor = conn.cursor()
 
         # Load account_type data
-        account_type(cursor)
+        account_type(conn, cursor, acc_type)
 
         # Find type_id from accounts table
         cursor.execute("SELECT type_id FROM account_type \
