@@ -131,17 +131,74 @@ class Account(DB):
         self.conn, self.cursr = super().connect()
 
         # Find category.cat_id using cat_name:
+        existing_category = 0
         self.cursor.execute("""
            SELECT cat_id FROM category
            WHERE cat_name = (?)
         """, (cat_name,))
         rows = self.cursor.fetchall()
-        cat_names = [row[0] for row in rows]
-        print(cat_names)
+        try:
+            cat_id = rows[0][0]
+        except:
+            print(f"Category {cat_name} does not exist. Try again.")
+            return 0
 
+        # Check if account already exists:
+        existing_account = 0
+        self.cursor.execute("""
+            SELECT acc_name from accounts
+            WHERE acc_name = (?)
+        """, (name,)) 
+        rows = self.cursor.fetchall()
+        try:
+            existing_account = rows[0][0]
+            print(f"Account {name} already exists. Try again.")
+        except:
+            print(f"Account {name} does not exist, adding.")
+
+        # Add account:
+        if cat_id != 0 and existing_account == 0:
+            data = (name, cat_id, 0, notes)
+            self.cursor.execute("""
+                INSERT INTO accounts (acc_name, cat_id, acc_total, acc_notes)
+                VALUES (?,?,?,?)
+            """, data)
+            self.conn.commit()
+            print(f"Account {name} added.")
 
         # Close database:
         super().close()
+
+    def list(self):
+        """
+        List all available accounts
+        """
+        # Connect to db:
+        self.conn, self.cursor = super().connect()
+
+        # Execute query:
+        self.cursor.execute("""
+            SELECT accounts.acc_id, accounts.acc_name, category.cat_name, 
+            accounts.acc_total, accounts.acc_notes
+            FROM accounts
+            JOIN category ON accounts.cat_id = category.cat_id
+        """)
+        rows = self.cursor.fetchall()
+        acc = [dict(row) for row in rows]
+
+        # List all the accounts
+        print("The available accounts are:")
+        for x in acc:
+            message = (
+            f"ID: {x['acc_id']}\tName: {x['acc_name']}\t"
+            f"Category: {x['cat_name']}\tTotal: {x['acc_total']}\t"
+            f"Notes: {x['acc_notes']}"
+            )
+            print(message)
+
+        # Close db:
+        super().close()
+
         
 
 
@@ -201,7 +258,6 @@ class Category(DB):
         print("The categories available are:")
         for x in self.cat:
             print(f"ID: {x['cat_id']}\tName: {x['cat_name']}\tType: {x['cat_type']}.")
-            #print(x)
 
         # Close db:
         super().close()
@@ -209,10 +265,9 @@ class Category(DB):
 if __name__ == "__main__":
     import api 
 
-    cat_name = "Credit"
-    cat_type = 2
-
-    acc_name = "Amex"
+    cat_name = "Debit"
+    cat_type = 1
+    acc_name = "BBVA"
 
     # Setup:
     #db = DB()
@@ -228,6 +283,7 @@ if __name__ == "__main__":
     # Add account:
     acc = Account()
     acc.add(acc_name, cat_name)
+    acc.list()
 
     # Delete database
     if 0:
