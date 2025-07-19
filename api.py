@@ -1,20 +1,21 @@
 import sqlite3
 
-def connect(db_name):
-    try:
-        conn = sqlite3.connect(db_name)
-        # Needs to be added according to ChatGPT 4o
-        conn.execute("PRAGMA foreign_Keys = ON;")
-        conn.row_factory = sqlite3.Row
-        print(f"\nConnected to {db_name}.\n")
-        return conn
-    except sqlite3.Error as e:
-        print(f"\nFailed to connect to {db_name}.", e)
-        return 0
+class DB:
+    def connect(self, db_name):
+        try:
+            self.conn = sqlite3.connect(db_name)
+            # Needs to be added according to ChatGPT 4o
+            self.conn.execute("PRAGMA foreign_Keys = ON;")
+            self.conn.row_factory = sqlite3.Row
+            print(f"\nConnected to {db_name}.")
+            return self.conn
+        except sqlite3.Error as e:
+            print(f"\nFailed to connect to {db_name}.", e)
+            return 0
 
-def close(conn):
-    conn.close()
-    print(f"\nDatabase closed.\n")
+    def close(self):
+        self.conn.close()
+        print(f"\nDatabase closed.\n")
 
 def read_account_types(conn):
     conn.row_factory = sqlite3.Row
@@ -37,10 +38,20 @@ def read_accounts(conn):
     return accounts
 
 if __name__ == "__main__":
-    name = "sqlite.db"
-    conn = connect(name)
-    account_types = read_account_types(conn)
-    for x in account_types:
-        print(x)
+    import api 
 
-    close(conn)
+    # Create database
+    db_name = "sqlite.db"
+    db = api.DB()
+    conn = db.connect(db_name)
+    db.close()
+
+    # Delete database
+    if 0:
+        import os
+        file_name = db_name
+        if os.path.isfile(file_name):
+            os.remove(file_name)
+            print(f"{file_name} has been deleted.")
+        else:
+            print(f"{file_name} does not exist.")
