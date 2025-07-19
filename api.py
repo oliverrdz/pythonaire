@@ -115,9 +115,39 @@ class DB:
         print(f"\nDatabase closed.\n")
 
 
+class Account(DB):
+    """
+    Add or list new accounts
+    """
+    def __init__(self):
+        super().__init__()
+
+    def add(self, name, cat_name, notes=""):
+        """
+        Add a new account
+        """
+
+        # Open or create database:
+        self.conn, self.cursr = super().connect()
+
+        # Find category.cat_id using cat_name:
+        self.cursor.execute("""
+           SELECT cat_id FROM category
+           WHERE cat_name = (?)
+        """, (cat_name,))
+        rows = self.cursor.fetchall()
+        cat_names = [row[0] for row in rows]
+        print(cat_names)
+
+
+        # Close database:
+        super().close()
+        
+
+
 class Category(DB):
     """
-    Add new category
+    Add or list new categories
     """
     def __init__(self):
         super().__init__()
@@ -160,15 +190,18 @@ class Category(DB):
 
         # Execute query:
         self.cursor.execute("""
-            SELECT cat_name FROM category
+            SELECT category.cat_id, category.cat_name, category_type.cat_type
+            FROM category
+            JOIN category_type ON category.type_id = category_type.cat_type_id
         """)
         rows = self.cursor.fetchall()
-        self.cat = [row[0] for row in rows]
+        self.cat = [dict(row) for row in rows]
 
         # List all the categories
         print("The categories available are:")
         for x in self.cat:
-            print(x)
+            print(f"ID: {x['cat_id']}\tName: {x['cat_name']}\tType: {x['cat_type']}.")
+            #print(x)
 
         # Close db:
         super().close()
@@ -176,19 +209,25 @@ class Category(DB):
 if __name__ == "__main__":
     import api 
 
+    cat_name = "Credit"
+    cat_type = 2
+
+    acc_name = "Amex"
+
     # Setup:
     #db = DB()
     #db.setup()
 
     # Add category:
-    cat_name = "Credit 2"
-    cat_type = 2
-    #cat = Add_category(cat_name, cat_type)
     cat = Category()
-    cat.add(cat_name, cat_type)
+    #cat.add(cat_name, cat_type)
 
     # List all categories:
     cat.list()
+
+    # Add account:
+    acc = Account()
+    acc.add(acc_name, cat_name)
 
     # Delete database
     if 0:
