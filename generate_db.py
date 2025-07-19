@@ -39,7 +39,7 @@ if __name__ == "__main__":
         account_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
         name text NOT NULL,
         type_id integer NOT NULL,
-        initial_ammount float NOT NULL,
+        total float NOT NULL,
         FOREIGN KEY (type_id) REFERENCES account_type(type_id)
         )
         """)

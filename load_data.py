@@ -14,7 +14,7 @@ def account(conn, cursor, data):
     Inserts data into accounts table
     """
     cursor.execute("""
-    INSERT INTO accounts (name, type_id, initial_ammount) \
+    INSERT INTO accounts (name, type_id, total) \
     VALUES (?, ?, ?)
     """, data)
     conn.commit()
@@ -25,24 +25,37 @@ def transactions(conn, cursor, data):
     Inserts data into the transactions table
     """
     cursor.execute("""
-        INSERT INTO transactions (account_id, ammount_added, notes) 
-        VALUES (?, ?, ?)
-    """, data)
-    conn.commit()
-    print("Populated transactions table")
+        SELECT total FROM accounts
+        WHERE account_id = ?
+    """, (data[0],))
+    last_ammount = cursor.fetchall()[0][0]
+    print(last_ammount)
+    print(ammount_added)
+    if 1:
+        cursor.execute("""
+            INSERT INTO transactions (account_id, ammount_added, notes) 
+            VALUES (?, ?, ?)
+        """, data)
+        cursor.execute("""
+            UPDATE accounts 
+            SET total = ?
+            where account_id = ?
+        """, (ammount_added+last_ammount, data[0]))
+        conn.commit()
+        print("Populated transactions table")
 
 if __name__ == "__main__":
     # Connect to DB
     file_name = "sqlite.db"
     conn = db.connect_DB(file_name)
 
-    if conn:
-        acc_type = ("Debit",)
-        name = "Bank1"
-        initial_ammount = 0
-        ammount_added = 100
-        note = "First transfer"
-
+    acc_type = ("Debit",)
+    name = "Bank1"
+    initial_ammount = 0
+    ammount_added = 100
+    note = "Transfer"
+    
+    if 1:
         cursor = conn.cursor()
 
         # Load account_type data
@@ -65,8 +78,9 @@ if __name__ == "__main__":
         account_id = cursor.fetchall()[0][0]
 
         # Load transactions data
+        account_id = 1
         data = (account_id, ammount_added, note)
         transactions(conn, cursor, data)
-        
-        
-        conn.close()
+
+
+    conn.close()

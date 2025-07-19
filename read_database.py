@@ -21,7 +21,7 @@ if __name__ == "__main__":
         # Read accounts table
         #cursor.execute("SELECT * FROM accounts")
         cursor.execute("""
-            SELECT accounts.name, account_type.type, accounts.initial_ammount
+            SELECT accounts.name, account_type.type, accounts.total
             FROM accounts
             JOIN account_type ON accounts.account_id = account_type.type_id
         """)
