@@ -10,8 +10,7 @@ def account_type(conn, cursor, data):
         cursor.execute("""
             SELECT type FROM account_type
         """)
-        rows = cursor.fetchall()
-        account_types = rows#[dict(row) for row in rows]
+        account_types = cursor.fetchall()
     except:
         pass
 
@@ -27,7 +26,19 @@ def account(conn, cursor, data):
     """
     Inserts data into accounts table
     """
+    accounts = 0
+    try:
+        cursor.execute("""
+            SELECT name from accounts
+        """)
+        accounts = cursor.fetchall()[0][0]
+    except:
+        pass
 
+    if accounts:
+        if data[0] in accounts:
+            print(f"Account {data[0]} already exists.")
+            return 0
     cursor.execute("""
     INSERT INTO accounts (name, type_id, total) \
     VALUES (?, ?, ?)
@@ -76,17 +87,18 @@ if __name__ == "__main__":
     # Load account_type data
     account_type(conn, cursor, acc_type)
 
+    # Find type_id from accounts table
+    cursor.execute("SELECT type_id FROM account_type \
+                    WHERE type = ?", acc_type)
+    type_id = cursor.fetchall()[0][0]
+
+    # Load accounts data
+    data = (name, type_id, initial_ammount)
+    account(conn, cursor, data)
+
+
     if 0:
-        # Find type_id from accounts table
-        cursor.execute("SELECT type_id FROM account_type \
-                        WHERE type = ?", acc_type)
-        type_id = cursor.fetchall()[0][0]
-
-        # Load accounts data
-        data = (name, type_id, initial_ammount)
-        account(conn, cursor, data)
-
-        # Find account_id from accounts table
+            # Find account_id from accounts table
         cursor.execute("""
             SELECT account_id FROM accounts
             WHERE name = ?
