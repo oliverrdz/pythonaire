@@ -28,6 +28,7 @@ if __name__ == "__main__":
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS account_type (
         type_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+        type_name varchar(100),
         type varchar(100)
         )
         """)
