@@ -1,34 +1,36 @@
 import sqlite3
 
-def setup(db_name="pythonaire.db"):
-    """
-    Creates db and tables
-    """
-    db = DB()
-    db.create_tables(db_name)
-    db.generate_category_type()
-
-    db.close()
-
 class DB:
     """
     New database 
     """
-    def connect(self, db_name):
+    def __init__(self):
+        self.db_name = "pythonaire.db"
+
+    def connect(self):
         """
         Connects to database db_name
         """
         try:
-            self.conn = sqlite3.connect(db_name)
+            self.conn = sqlite3.connect(self.db_name)
             # Needs to be added according to ChatGPT 4o
             self.conn.execute("PRAGMA foreign_Keys = ON;")
             self.conn.row_factory = sqlite3.Row
-            print(f"\nConnected to {db_name}.\n")
+            print(f"\nConnected to {self.db_name}.\n")
             self.cursor = self.conn.cursor()
-            return 1
+            return self.conn, self.cursor
         except sqlite3.Error as e:
-            print(f"\nFailed to connect to {db_name}.\n", e)
+            print(f"\nFailed to connect to {self.db_name}.\n", e)
             return 0
+
+    def setup(self):
+        """
+        Creates db and tables
+        """
+        self.connect()
+        self.create_tables(self.db_name)
+        self.generate_category_type()
+        self.close()
 
     def create_tables(self, db_name):
         """
@@ -37,7 +39,7 @@ class DB:
         Pending:
         * Check if tables already exist
         """
-        if not self.connect(db_name):
+        if not self.connect():
             print(f"\nCan't connect to database {db_name}\n")
             return 0
 
@@ -113,22 +115,97 @@ class DB:
         print(f"\nDatabase closed.\n")
 
 
+class Category(DB):
+    """
+    Add new category
+    """
+    def __init__(self):
+        super().__init__()
 
+    def add(self, name, cat_type):
+        """
+        Add a new category
+        """
+        data = (name, cat_type)
+
+        # Open or create database:
+        self.conn, self.cursor = super().connect()
+
+        # Check if category name already exists:
+        self.cursor.execute("""
+            SELECT cat_name from category
+        """)
+        rows = self.cursor.fetchall()
+        cat_names = [row[0] for row in rows]
+        if name in cat_names:
+            print(f"Category {name} already exists, pick a new name.")
+        else:
+            # Add new category:
+            self.cursor.execute("""
+                INSERT INTO category (cat_name, type_id)
+                VALUES (?,?)
+            """, data)
+            self.conn.commit()
+            print(f"Category {name} added.")
+
+        # Close database:
+        super().close()
+
+    def list(self):
+        """
+        List all the available categories
+        """
+        # Connect to db:
+        self.conn, self.cursor = super().connect()
+
+        # Execute query:
+        self.cursor.execute("""
+            SELECT cat_name FROM category
+        """)
+        rows = self.cursor.fetchall()
+        self.cat = [row[0] for row in rows]
+
+        # List all the categories
+        print("The categories available are:")
+        for x in self.cat:
+            print(x)
+
+        # Close db:
+        super().close()
+        
 if __name__ == "__main__":
     import api 
 
-    # Create database
-    db_name = "pythonaire.db"
-    setup()
+    # Setup:
+    #db = DB()
+    #db.setup()
 
-    # Add account types
+    # Add category:
+    cat_name = "Credit 2"
+    cat_type = 2
+    #cat = Add_category(cat_name, cat_type)
+    cat = Category()
+    cat.add(cat_name, cat_type)
+
+    # List all categories:
+    cat.list()
 
     # Delete database
     if 0:
         import os
+        db_name = "pythonaire.db"
         file_name = db_name
         if os.path.isfile(file_name):
             os.remove(file_name)
             print(f"{file_name} has been deleted.")
         else:
             print(f"{file_name} does not exist.")
+
+    #self.cursor.execute("""
+    #        SELECT * from category_type
+    #    """)
+    #    rows = self.cursor.fetchall()
+    #    categories = [dict(row) for row in rows]
+    #    for x in categories:
+    #        print(x)
+     
