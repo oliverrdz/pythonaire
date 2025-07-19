@@ -27,7 +27,6 @@ class DB:
         """
         Creates db and tables
         """
-        self.connect()
         self.create_tables(self.db_name)
         self.generate_category_type()
         self.close()
