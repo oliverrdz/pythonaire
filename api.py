@@ -6,6 +6,8 @@ def setup(db_name="pythonaire.db"):
     """
     db = DB()
     db.create_tables(db_name)
+    db.generate_category_type()
+
     db.close()
 
 class DB:
@@ -21,11 +23,11 @@ class DB:
             # Needs to be added according to ChatGPT 4o
             self.conn.execute("PRAGMA foreign_Keys = ON;")
             self.conn.row_factory = sqlite3.Row
-            print(f"\nConnected to {db_name}.")
+            print(f"\nConnected to {db_name}.\n")
             self.cursor = self.conn.cursor()
             return 1
         except sqlite3.Error as e:
-            print(f"\nFailed to connect to {db_name}.", e)
+            print(f"\nFailed to connect to {db_name}.\n", e)
             return 0
 
     def create_tables(self, db_name):
@@ -36,26 +38,37 @@ class DB:
         * Check if tables already exist
         """
         if not self.connect(db_name):
-            print(f"Can't connect to database {db_name}")
+            print(f"\nCan't connect to database {db_name}\n")
             return 0
-        # Create table account_type:
+
+        # Create table category_type (e.g. Positive/Negative):
         self.cursor.execute("""
-        CREATE TABLE IF NOT EXISTS account_type (
-        type_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-        type_name varchar(100),
-        type varchar(100)
+        CREATE TABLE IF NOT EXISTS category_type (
+        cat_type_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+        cat_type varchar(100)
+        )""")
+        print("Table category_type created")
+
+        # Create table category (e.g. Debit, Credit, Savings, etc):
+        self.cursor.execute("""
+        CREATE TABLE IF NOT EXISTS category (
+        cat_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+        cat_name varchar(100),
+        type_id integer NOT NULL,
+        FOREIGN KEY (type_id) REFERENCES category_type(cat_type_id)
         )
         """)
-        print("Table account_type created")
+        print("Table category created")
 
-        # Create table accounts
+        # Create table accounts (e.g. Amex, Chase debit, etc)
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS accounts(
-        account_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-        name text NOT NULL,
-        type_id integer NOT NULL,
-        total float NOT NULL,
-        FOREIGN KEY (type_id) REFERENCES account_type(type_id)
+        acc_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+        acc_name text NOT NULL,
+        cat_id integer NOT NULL,
+        acc_total float NOT NULL,
+        acc_notes text,
+        FOREIGN KEY (cat_id) REFERENCES category(cat_id)
         )
         """)
         print("Table accounts created")
@@ -63,16 +76,28 @@ class DB:
         # Create table transactions
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS transactions (
-        transaction_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-        date datetime DEFAULT CURRENT_TIMESTAMP,
-        account_id integer NOT NULL,
-        ammount_added float NOT NULL,
-        notes text,
-        FOREIGN KEY (account_id) REFERENCES accounts(account_id)
+        trans_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+        trans_date datetime DEFAULT CURRENT_TIMESTAMP,
+        acc_id integer NOT NULL,
+        trans_amount float NOT NULL,
+        trans_notes text,
+        FOREIGN KEY (acc_id) REFERENCES accounts(acc_id)
         )
         """)
         print("Table transactions created")
 
+
+    def generate_category_type(self):
+        category_types = [
+            ("Positive",),
+            ("Negative",)
+        ]
+        self.cursor.executemany("""
+            INSERT INTO category_type (cat_type)
+            VALUES (?)
+        """, category_types)
+        self.conn.commit()
+        
 
     def close(self):
         """
@@ -87,11 +112,10 @@ if __name__ == "__main__":
     import api 
 
     # Create database
-    db_name = "sqlite.db"
+    db_name = "pythonaire.db"
     setup()
-    #db = api.DB()
-    #db.create_tables(db_name)
-    #db.close()
+
+    # Add account types
 
     # Delete database
     if 0:
