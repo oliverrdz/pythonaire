@@ -26,6 +26,7 @@ def account(conn, cursor, data):
     """
     Inserts data into accounts table
     """
+    data = data + (0,)
     accounts = 0
     try:
         cursor.execute("""
@@ -55,8 +56,6 @@ def transactions(conn, cursor, data):
         WHERE account_id = ?
     """, (data[0],))
     last_ammount = cursor.fetchall()[0][0]
-    print(last_ammount)
-    print(ammount_added)
     if 1:
         cursor.execute("""
             INSERT INTO transactions (account_id, ammount_added, notes) 
@@ -93,22 +92,20 @@ if __name__ == "__main__":
     type_id = cursor.fetchall()[0][0]
 
     # Load accounts data
-    data = (name, type_id, initial_ammount)
+    data = (name, type_id)
     account(conn, cursor, data)
 
+    # Find account_id from accounts table
+    cursor.execute("""
+        SELECT account_id FROM accounts
+        WHERE name = ?
+    """, (name,))
+    account_id = cursor.fetchall()[0][0]
 
-    if 0:
-            # Find account_id from accounts table
-        cursor.execute("""
-            SELECT account_id FROM accounts
-            WHERE name = ?
-        """, (name,))
-        account_id = cursor.fetchall()[0][0]
-
-        # Load transactions data
-        account_id = 1
-        data = (account_id, ammount_added, note)
-        transactions(conn, cursor, data)
+    # Load transactions data
+    account_id = 1
+    data = (account_id, ammount_added, note)
+    transactions(conn, cursor, data)
 
 
     conn.close()
