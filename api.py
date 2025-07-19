@@ -88,6 +88,12 @@ class DB:
 
 
     def generate_category_type(self):
+        """
+        Loads category types Positive and Negative
+
+        Pending:
+        * Check that categories don't already exist
+        """
         category_types = [
             ("Positive",),
             ("Negative",)
