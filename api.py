@@ -87,7 +87,6 @@ class DB:
         """)
         print("Table transactions created")
 
-
     def generate_category_type(self):
         """
         Loads category types Positive and Negative
@@ -198,8 +197,6 @@ class Account(DB):
         # Close db:
         super().close()
 
-        
-
 
 class Category(DB):
     """
@@ -260,7 +257,82 @@ class Category(DB):
 
         # Close db:
         super().close()
+
+
+
+class Transaction(DB):
+    """
+    Add or list all transactions
+    """
+    def __init__(self):
+        super().__init__()
+
+    def add(self, acc_name, trans_amount, trans_notes=""):
+        """
+        Add a new transaction
+        """
+
+        # Open or create database:
+        self.conn, self.cursor = super().connect()
+
+        # Find account with name acc_name:
+        self.cursor.execute("""
+            SELECT accounts.acc_id, accounts.acc_name, category.cat_id, 
+            category.cat_name 
+            FROM accounts
+            JOIN category ON accounts.cat_id = category.cat_id 
+            WHERE accounts.acc_name = ?
+        """, (acc_name,))
+        rows = self.cursor.fetchall()
+        data = [dict(row) for row in rows]
+        if data:
+            acc_id = data[0]["acc_id"]
+            acc_type = data[0]["cat_id"]
+        else:
+            print(f"Account {acc_name} does not exist. Try again.")
+            return 0
+
+        # Check if account type is Negative to make added amount negative:
+        #acc_type = 0
+        self.cursor.execute("""
+            SELECT category_type.cat_type FROM category
+            JOIN category_type ON category.type_id = category_type.cat_type_id
+            WHERE category.cat_id = ?
+        """, (acc_type,))
+        acc_type = self.cursor.fetchall()[0][0]
+        if acc_type == "Negative":
+            # Ensure amount added is always negative:
+            print("Negative")
+            amount_added = -abs(trans_amount)
+            print(amount_added)
+        else:
+            # Ensure amount added is always positive:
+            print("Positive")
+            amount_added = abs(trans_amount)
+
+        # Find last amount from selected account:
+        self.cursor.execute("""
+            SELECT acc_total, acc_name FROM accounts
+            WHERE acc_name = ?
+        """, (acc_name,))
+        last_amount, acc_name = self.cursor.fetchall()[0]
+
+        # Add new transaction:
+        data = (acc_id, trans_amount, trans_notes) 
+        self.cursor.execute("""
+            INSERT INTO transactions (acc_id, trans_amount, trans_notes)
+            VALUES (?,?,?)
+        """, data) 
+        self.cursor.execute("""
+            UPDATE accounts
+            SET acc_total = ?
+            WHERE acc_id = ?
+        """, (amount_added + last_amount, acc_id))
+        self.conn.commit()
+        print(f"Added {trans_amount} to account {acc_name}")
         
+        
+
 if __name__ == "__main__":
     import api 
 
@@ -273,11 +345,11 @@ if __name__ == "__main__":
     #db.setup()
 
     # Add category:
-    cat = Category()
+    #cat = Category()
     #cat.add(cat_name, cat_type)
 
     # List all categories:
-    cat.list()
+    #cat.list()
 
     # Add account:
     acc = Account()
