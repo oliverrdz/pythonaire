@@ -1,3 +1,8 @@
+![Python](https://img.shields.io/badge/Python-3.7%2B-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Platform](https://img.shields.io/badge/Platform-CLI-lightgrey)
+![Contributors](https://img.shields.io/github/contributors/yourusername/pythonaire)
+
 # Pythonaire
 
 **Pythonaire** is a lightweight command-line personal finance tracker built with Python and SQLite. It allows you to manage categories, accounts, and transactions while keeping your account balances updated automatically.
