@@ -1,6 +1,5 @@
 import sqlite3
 
-
 class DB:
     """
     Handles SQLite database connection, setup, and table creation.
@@ -33,38 +32,34 @@ class DB:
             return 0
 
         self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS category_type (
-                cat_type_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-                cat_type varchar(100)
-            )""")
+        CREATE TABLE IF NOT EXISTS category_type (
+        cat_type_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+        cat_type varchar(100))""")
 
         self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS category (
-                cat_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-                cat_name varchar(100)
-            )""")
+        CREATE TABLE IF NOT EXISTS category (
+        cat_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+        cat_name varchar(100))""")
 
         self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS accounts (
-                acc_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-                acc_name text NOT NULL,
-                cat_id integer NOT NULL,
-                acc_total float NOT NULL,
-                acc_notes text,
-                FOREIGN KEY (cat_id) REFERENCES category(cat_id)
-            )""")
+        CREATE TABLE IF NOT EXISTS accounts(
+        acc_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+        acc_name text NOT NULL,
+        cat_id integer NOT NULL,
+        acc_total float NOT NULL,
+        acc_notes text,
+        FOREIGN KEY (cat_id) REFERENCES category(cat_id))""")
 
         self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS transactions (
-                trans_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-                trans_date datetime DEFAULT CURRENT_TIMESTAMP,
-                acc_id integer NOT NULL,
-                trans_amount float NOT NULL,
-                cat_type_id integer NOT NULL,
-                trans_notes text,
-                FOREIGN KEY (acc_id) REFERENCES accounts(acc_id),
-                FOREIGN KEY (cat_type_id) REFERENCES category_type(cat_type_id)
-            )""")
+        CREATE TABLE IF NOT EXISTS transactions (
+        trans_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+        trans_date datetime DEFAULT CURRENT_TIMESTAMP,
+        acc_id integer NOT NULL,
+        trans_amount float NOT NULL,
+        cat_type_id integer NOT NULL,
+        trans_notes text,
+        FOREIGN KEY (acc_id) REFERENCES accounts(acc_id),
+        FOREIGN KEY (cat_type_id) REFERENCES category_type(cat_type_id))""")
 
     def generate_category_type(self):
         """Insert default category types into the database."""
@@ -134,10 +129,7 @@ class Account(BaseModel):
     """
     def __init__(self):
         super().__init__()
-        self.insert_query = (
-            "INSERT INTO accounts (acc_name, cat_id, acc_total, acc_notes) "
-            "VALUES (?, ?, ?, ?)"
-        )
+        self.insert_query = "INSERT INTO accounts (acc_name, cat_id, acc_total, acc_notes) VALUES (?, ?, ?, ?)"
         self.list_query = """
             SELECT acc_id, acc_name, category.cat_name, acc_total, acc_notes
             FROM accounts
@@ -146,14 +138,12 @@ class Account(BaseModel):
     def add(self, name, cat_name, notes=""):
         """Add a new account with a category name and optional notes."""
         self.conn, self.cursor = super().connect()
-        self.cursor.execute(
-            "SELECT cat_id FROM category WHERE cat_name = ?", (cat_name,))
+        self.cursor.execute("SELECT cat_id FROM category WHERE cat_name = ?", (cat_name,))
         cat = self.cursor.fetchone()
         if not cat:
             print(f"Category {cat_name} does not exist.")
         else:
-            self.cursor.execute(
-                "SELECT acc_name FROM accounts WHERE acc_name = ?", (name,))
+            self.cursor.execute("SELECT acc_name FROM accounts WHERE acc_name = ?", (name,))
             if self.cursor.fetchone():
                 print(f"Account {name} already exists.")
             else:
@@ -164,10 +154,8 @@ class Account(BaseModel):
         """Print account list from fetched rows."""
         print("\nAvailable accounts:")
         for row in rows:
-            print(
-                f"ID: {row['acc_id']}\tName: {row['acc_name']}\t"
-                f"Category: {row['cat_name']}\tTotal: {row['acc_total']}\tNotes: {row['acc_notes']}"
-            )
+            print(f"ID: {row['acc_id']}\tName: {row['acc_name']}\t"
+                  f"Category: {row['cat_name']}\tTotal: {row['acc_total']}\tNotes: {row['acc_notes']}")
 
 
 class Transaction(BaseModel):
@@ -176,10 +164,7 @@ class Transaction(BaseModel):
     """
     def __init__(self):
         super().__init__()
-        self.insert_query = (
-            "INSERT INTO transactions (acc_id, trans_amount, cat_type_id, trans_notes) "
-            "VALUES (?, ?, ?, ?)"
-        )
+        self.insert_query = "INSERT INTO transactions (acc_id, trans_amount, cat_type_id, trans_notes) VALUES (?, ?, ?, ?)"
         self.list_query = """
             SELECT trans_id, trans_date, accounts.acc_name, trans_amount, trans_notes
             FROM transactions
@@ -189,8 +174,7 @@ class Transaction(BaseModel):
         """Add a transaction and update the account total accordingly."""
         self.conn, self.cursor = super().connect()
 
-        self.cursor.execute(
-            "SELECT acc_id FROM accounts WHERE acc_name = ?", (acc_name,))
+        self.cursor.execute("SELECT acc_id FROM accounts WHERE acc_name = ?", (acc_name,))
         acc = self.cursor.fetchone()
         if not acc:
             print(f"Account {acc_name} does not exist.")
@@ -200,8 +184,7 @@ class Transaction(BaseModel):
         acc_id = acc["acc_id"]
         trans_amount = abs(trans_amount) if cat_type == "Income" else -abs(trans_amount)
 
-        self.cursor.execute(
-            "SELECT cat_type_id FROM category_type WHERE cat_type = ?", (cat_type,))
+        self.cursor.execute("SELECT cat_type_id FROM category_type WHERE cat_type = ?", (cat_type,))
         cat_row = self.cursor.fetchone()
         if not cat_row:
             print("Invalid category type.")
@@ -210,15 +193,12 @@ class Transaction(BaseModel):
 
         cat_type_id = cat_row["cat_type_id"]
 
-        self.cursor.execute(
-            "SELECT acc_total FROM accounts WHERE acc_id = ?", (acc_id,))
+        self.cursor.execute("SELECT acc_total FROM accounts WHERE acc_id = ?", (acc_id,))
         last_total = self.cursor.fetchone()["acc_total"]
 
-        self.cursor.execute(
-            self.insert_query, (acc_id, trans_amount, cat_type_id, trans_notes))
-        self.cursor.execute(
-            "UPDATE accounts SET acc_total = ? WHERE acc_id = ?",
-            (last_total + trans_amount, acc_id))
+        self.cursor.execute(self.insert_query, (acc_id, trans_amount, cat_type_id, trans_notes))
+        self.cursor.execute("UPDATE accounts SET acc_total = ? WHERE acc_id = ?",
+                            (last_total + trans_amount, acc_id))
         self.conn.commit()
         print(f"Transaction added to {acc_name}")
         super().close()
@@ -227,33 +207,5 @@ class Transaction(BaseModel):
         """Print transaction list from fetched rows."""
         print("\nAvailable transactions:")
         for row in rows:
-            print(
-                f"ID: {row['trans_id']}\tDate: {row['trans_date']}\t"
-                f"Account: {row['acc_name']}\tAmount: {row['trans_amount']}\tNotes: {row['trans_notes']}"
-            )
-
-
-if __name__ == "__main__":
-    db = DB()
-    db.setup()
-
-    cat = Category()
-    cat.add("Debit")
-    cat.add("Credit")
-    cat.add("Savings")
-    cat.list()
-
-    acc = Account()
-    acc.add("BBVA", "Debit")
-    acc.add("Amex", "Credit")
-    acc.add("Monzo", "Debit")
-    acc.list()
-
-    trans = Transaction()
-    trans.add("BBVA", 50, "Income")
-    trans.add("BBVA", 100, "Income")
-    trans.add("Amex", 100, "Expense")
-    trans.add("Amex", 50, "Income")
-    trans.add("BBVA", 50, "Expense")
-    trans.list()
-    acc.list()
+            print(f"ID: {row['trans_id']}\tDate: {row['trans_date']}\t"
+                  f"Account: {row['acc_name']}\tAmount: {row['trans_amount']}\tNotes: {row['trans_notes']}")
