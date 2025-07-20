@@ -1,5 +1,5 @@
 ![Python](https://img.shields.io/badge/Python-3.7%2B-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
+[![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![Platform](https://img.shields.io/badge/Platform-CLI-lightgrey)
 ![Contributors](https://img.shields.io/github/contributors/oliverrdz/pythonaire)
 
@@ -79,3 +79,17 @@ This project is designed to be modular. It can be extended by:
 Oliver Rodriguez  
 Powered by ChatGPT  
 2025
+
+## Contributors
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/oliverrdz">
+        <img src="https://avatars.githubusercontent.com/oliverrdz" width="100px;" alt="oliverrdz"/>
+        <br /><sub><b>oliverrdz</b></sub>
+      </a>
+    </td>
+
+  </tr>
+</table>
