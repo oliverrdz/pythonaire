@@ -4,8 +4,8 @@ class DB:
     """
     New database 
     """
-    def __init__(self):
-        self.db_name = "pythonaire.db"
+    def __init__(self, db_name="pythonaire.db"):
+        self.db_name = db_name
 
     def connect(self):
         """
@@ -34,9 +34,6 @@ class DB:
     def create_tables(self, db_name):
         """
         Creates all required tables
-
-        Pending:
-        * Check if tables already exist
         """
         if not self.connect():
             print(f"\nCan't connect to database {db_name}\n")
@@ -110,7 +107,7 @@ class DB:
         Closes database
         """
         self.conn.close()
-        print(f"\nDatabase closed.\n")
+        print(f"\nDatabase {self.db_name} closed.\n")
 
 
 class Account(DB):
@@ -293,7 +290,6 @@ class Transaction(DB):
             return 0
 
         # Check if account type is Negative to make added amount negative:
-        #acc_type = 0
         self.cursor.execute("""
             SELECT category_type.cat_type FROM category
             JOIN category_type ON category.type_id = category_type.cat_type_id
@@ -364,44 +360,16 @@ class Transaction(DB):
         
 
 if __name__ == "__main__":
-    import api 
+    #import api 
 
-    cat_name = "Debit"
-    cat_type = 1
-    acc_name = "BBVA"
+    cat = Category()
+    cat.list()
 
-    # Setup:
-    #db = DB()
-    #db.setup()
-
-    # Add category:
-    #cat = Category()
-    #cat.add(cat_name, cat_type)
-
-    # List all categories:
-    #cat.list()
-
-    # Add account:
     acc = Account()
-    acc.add(acc_name, cat_name)
+    #acc.add("Lloyds", "Debit", "")
     acc.list()
 
-    # Delete database
-    if 0:
-        import os
-        db_name = "pythonaire.db"
-        file_name = db_name
-        if os.path.isfile(file_name):
-            os.remove(file_name)
-            print(f"{file_name} has been deleted.")
-        else:
-            print(f"{file_name} does not exist.")
+    #trans = Transaction()
+    #trans.add("Amex", 50, "")
+    #trans.list()
 
-    #self.cursor.execute("""
-    #        SELECT * from category_type
-    #    """)
-    #    rows = self.cursor.fetchall()
-    #    categories = [dict(row) for row in rows]
-    #    for x in categories:
-    #        print(x)
-     
