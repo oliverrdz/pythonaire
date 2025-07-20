@@ -53,8 +53,10 @@ pip3 install pythonaire
 
 - Income and expenses on the above accounts
 
-## How to use
-* Pending
+## How to use the sample main.py file
+```bash
+python3 main.py
+```
 
 ## Code Structure
 
