@@ -74,12 +74,6 @@ This project is designed to be modular. It can be extended by:
 - Adding a GUI or web interface
 - Exporting reports to PDF or CSV
 
-## Author
-
-Oliver Rodriguez  
-Powered by ChatGPT  
-2025
-
 ## Contributors
 
 <table>
