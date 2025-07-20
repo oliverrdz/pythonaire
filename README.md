@@ -1,7 +1,7 @@
 ![Python](https://img.shields.io/badge/Python-3.7%2B-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Platform](https://img.shields.io/badge/Platform-CLI-lightgrey)
-![Contributors](https://img.shields.io/github/contributors/yourusername/pythonaire)
+![Contributors](https://img.shields.io/github/contributors/oliverrdz/pythonaire)
 
 # Pythonaire
 
