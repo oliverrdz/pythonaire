@@ -16,7 +16,6 @@ class DB:
             # Needs to be added according to ChatGPT 4o
             self.conn.execute("PRAGMA foreign_Keys = ON;")
             self.conn.row_factory = sqlite3.Row
-            print(f"\nConnected to {self.db_name}.\n")
             self.cursor = self.conn.cursor()
             return self.conn, self.cursor
         except sqlite3.Error as e:
@@ -81,7 +80,7 @@ class DB:
         FOREIGN KEY (cat_type_id) REFERENCES category_type(cat_type_id)
         )
         """)
-        print("Table transactions created")
+        print("Table transactions created\n")
 
     def generate_category_type(self):
         """
@@ -106,7 +105,6 @@ class DB:
         Closes database
         """
         self.conn.close()
-        print(f"\nDatabase {self.db_name} closed.\n")
 
 
 class Category(DB):
@@ -161,10 +159,10 @@ class Category(DB):
         self.cat = [dict(row) for row in rows]
 
         # List all the categories
-        print("The categories available are:")
+        print("\nThe categories available are:")
         for x in self.cat:
             print(f"ID: {x['cat_id']}\tName: {x['cat_name']}.")
-
+        print("")
         # Close db:
         super().close()
 
@@ -208,7 +206,7 @@ class Account(DB):
             existing_account = rows[0][0]
             print(f"Account {name} already exists. Try again.")
         except:
-            print(f"Account {name} does not exist, adding.")
+            pass
 
         # Add account:
         if cat_id != 0 and existing_account == 0:
@@ -241,7 +239,7 @@ class Account(DB):
         acc = [dict(row) for row in rows]
 
         # List all the accounts
-        print("The available accounts are:")
+        print("\nThe available accounts are:")
         for x in acc:
             message = (
             f"ID: {x['acc_id']}\tName: {x['acc_name']}\t"
@@ -249,7 +247,7 @@ class Account(DB):
             f"Notes: {x['acc_notes']}"
             )
             print(message)
-
+        print("")
         # Close db:
         super().close()
 
@@ -279,8 +277,6 @@ class Transaction(DB):
         data = [dict(row) for row in rows]
         if data:
             acc_id = data[0]["acc_id"]
-            print(f"Account {acc_name} found.")
-            #acc_type = data[0]["cat_id"]
         else:
             print(f"Account {acc_name} does not exist. Try again.")
             return 0
@@ -288,12 +284,10 @@ class Transaction(DB):
         # Check if the amount added is either Income or Expense:
         if cat_type == "Income":
             # Ensure amount added is always positive:
-            print("Income")
-            amount_added = abs(trans_amount)
+            trans_amount = abs(trans_amount)
         elif cat_type == "Expense":
             # Ensure amount added is always negative:
-            print("Expense")
-            amount_added = -abs(trans_amount)
+            trans_amount = -abs(trans_amount)
         else:
             print("Type of transaction incorrect. Please select Income or Expense.")
             return 0
@@ -323,7 +317,7 @@ class Transaction(DB):
             UPDATE accounts
             SET acc_total = ?
             WHERE acc_id = ?
-        """, (amount_added + last_amount, acc_id))
+        """, (trans_amount + last_amount, acc_id))
         self.conn.commit()
         print(f"Added {trans_amount} to account {acc_name}")
         
@@ -345,7 +339,7 @@ class Transaction(DB):
         trans = [dict(row) for row in rows]
 
         # List all transactions:
-        print("The available transactions are:")
+        print("\nThe available transactions are:")
         for x in trans:
             message = (
             f"ID: {x['trans_id']}\tDate: {x['trans_date']}\t"
@@ -362,21 +356,32 @@ class Transaction(DB):
 if __name__ == "__main__":
 
     # Create DB:
-    #db = DB()
-    #db.setup()
+    db = DB()
+    db.setup()
     
     # Create category:
-    #cat = Category()
-    #cat.add(name="Credit")
-    #cat.list()
+    cat = Category()
+    cat.add(name="Debit")
+    cat.add(name="Credit")
+    cat.add(name="Savings")
+    cat.list()
 
     # Create account:
-    #acc = Account()
-    #acc.add(name="Amex", cat_name="Credit", notes="")
-    #acc.list()
-
+    acc = Account()
+    acc.add(name="BBVA", cat_name="Debit", notes="")
+    acc.add(name="Amex", cat_name="Credit", notes="")
+    acc.add("Monzo", "Debit")
+    acc.list()
+   
     # Create transaction:
     trans = Transaction()
-    trans.add(acc_name="Amex", trans_amount=50, cat_type="Expense", trans_notes="")
-    #trans.list()
+    trans.add(acc_name="BBVA", trans_amount=50, cat_type="Income", trans_notes="")
+    trans.add("BBVA", 100, "Income")
+    trans.add("Amex", 100, "Expense")
+    trans.add("Amex", 50, "Income")
+    trans.add("BBVA", 50, "Expense")
+    trans.list()
+
+    acc.list()
+    
 
