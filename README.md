@@ -1,6 +1,5 @@
 ![Python](https://img.shields.io/badge/Python-3.7%2B-blue)
 [![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-![Platform](https://img.shields.io/badge/Platform-CLI-lightgrey)
 ![Contributors](https://img.shields.io/github/contributors/oliverrdz/pythonaire)
 
 # Pythonaire
