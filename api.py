@@ -39,7 +39,7 @@ class DB:
             print(f"\nCan't connect to database {db_name}\n")
             return 0
 
-        # Create table category_type (e.g. Positive/Negative):
+        # Create table category_type (e.g. Expense/Income):
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS category_type (
         cat_type_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -86,14 +86,14 @@ class DB:
 
     def generate_category_type(self):
         """
-        Loads category types Positive and Negative
+        Loads category types Expense / Income
 
         Pending:
         * Check that categories don't already exist
         """
         category_types = [
-            ("Positive",),
-            ("Negative",)
+            ("Expense",),
+            ("Income",)
         ]
         self.cursor.executemany("""
             INSERT INTO category_type (cat_type)
