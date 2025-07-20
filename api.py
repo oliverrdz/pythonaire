@@ -261,7 +261,7 @@ class Transaction(DB):
     def __init__(self):
         super().__init__()
 
-    def add(self, acc_name, trans_amount, trans_notes=""):
+    def add(self, acc_name, trans_amount, cat_type, trans_notes=""):
         """
         Add a new transaction
         """
@@ -271,58 +271,71 @@ class Transaction(DB):
 
         # Find account with name acc_name:
         self.cursor.execute("""
-            SELECT accounts.acc_id, accounts.acc_name, category.cat_id, 
-            category.cat_name 
-            FROM accounts
-            JOIN category ON accounts.cat_id = category.cat_id 
-            WHERE accounts.acc_name = ?
+            SELECT a.acc_name 
+            FROM accounts a
+            WHERE a.acc_name = ?
         """, (acc_name,))
         rows = self.cursor.fetchall()
         data = [dict(row) for row in rows]
         if data:
-            acc_id = data[0]["acc_id"]
-            acc_type = data[0]["cat_id"]
+            #acc_id = data[0]["acc_id"]
+            print(f"Account {acc_name} found.")
+            #acc_type = data[0]["cat_id"]
         else:
             print(f"Account {acc_name} does not exist. Try again.")
             return 0
 
-        # Check if account type is Negative to make added amount negative:
-        self.cursor.execute("""
-            SELECT category_type.cat_type FROM category
-            JOIN category_type ON category.type_id = category_type.cat_type_id
-            WHERE category.cat_id = ?
-        """, (acc_type,))
-        acc_type = self.cursor.fetchall()[0][0]
-        if acc_type == "Negative":
-            # Ensure amount added is always negative:
-            print("Negative")
-            amount_added = -abs(trans_amount)
-            print(amount_added)
-        else:
+        # Check if the amount added is either Income or Expense:
+        if cat_type == "Income":
             # Ensure amount added is always positive:
-            print("Positive")
+            print("Income")
             amount_added = abs(trans_amount)
+        elif cat_type == "Expense":
+            # Ensure amount added is always negative:
+            print("Expense")
+            amount_added = -abs(trans_amount)
+        else:
+            print("Type of transaction incorrect. Please select Income or Expense.")
+            return 0
 
-        # Find last amount from selected account:
-        self.cursor.execute("""
-            SELECT acc_total, acc_name FROM accounts
-            WHERE acc_name = ?
-        """, (acc_name,))
-        last_amount, acc_name = self.cursor.fetchall()[0]
+        if 0:
+            # Check if account type is Negative to make added amount negative:
+            self.cursor.execute("""
+                SELECT category_type.cat_type FROM category
+                JOIN category_type ON category.type_id = category_type.cat_type_id
+                WHERE category.cat_id = ?
+            """, (acc_type,))
+            acc_type = self.cursor.fetchall()[0][0]
+            if acc_type == "Negative":
+                # Ensure amount added is always negative:
+                print("Negative")
+                amount_added = -abs(trans_amount)
+                print(amount_added)
+            else:
+                # Ensure amount added is always positive:
+                print("Positive")
+                amount_added = abs(trans_amount)
 
-        # Add new transaction:
-        data = (acc_id, trans_amount, trans_notes) 
-        self.cursor.execute("""
-            INSERT INTO transactions (acc_id, trans_amount, trans_notes)
-            VALUES (?,?,?)
-        """, data) 
-        self.cursor.execute("""
-            UPDATE accounts
-            SET acc_total = ?
-            WHERE acc_id = ?
-        """, (amount_added + last_amount, acc_id))
-        self.conn.commit()
-        print(f"Added {trans_amount} to account {acc_name}")
+            # Find last amount from selected account:
+            self.cursor.execute("""
+                SELECT acc_total, acc_name FROM accounts
+                WHERE acc_name = ?
+            """, (acc_name,))
+            last_amount, acc_name = self.cursor.fetchall()[0]
+
+            # Add new transaction:
+            data = (acc_id, trans_amount, trans_notes) 
+            self.cursor.execute("""
+                INSERT INTO transactions (acc_id, trans_amount, trans_notes)
+                VALUES (?,?,?)
+            """, data) 
+            self.cursor.execute("""
+                UPDATE accounts
+                SET acc_total = ?
+                WHERE acc_id = ?
+            """, (amount_added + last_amount, acc_id))
+            self.conn.commit()
+            print(f"Added {trans_amount} to account {acc_name}")
         
     def list(self):
         """
@@ -368,11 +381,12 @@ if __name__ == "__main__":
     #cat.list()
 
     # Create account:
-    acc = Account()
-    acc.add(name="Amex", cat_name="Debit", notes="")
-    acc.list()
+    #acc = Account()
+    #acc.add(name="Amex", cat_name="Credit", notes="")
+    #acc.list()
 
-    #trans = Transaction()
-    #trans.add("Amex", 50, "")
+    # Create transaction:
+    trans = Transaction()
+    trans.add(acc_name="Amex", trans_amount=50, cat_type="Expense1", trans_notes="")
     #trans.list()
 
