@@ -169,8 +169,6 @@ class Category(DB):
         super().close()
 
 
-
-
 class Account(DB):
     """
     Add or list new accounts
@@ -361,14 +359,18 @@ class Transaction(DB):
 if __name__ == "__main__":
 
     # Create DB:
-    db = DB()
-    db.setup()
+    #db = DB()
+    #db.setup()
+    
+    # Create category:
     #cat = Category()
+    #cat.add(name="Credit")
     #cat.list()
 
-    #acc = Account()
-    #acc.add("Lloyds", "Debit", "")
-    #acc.list()
+    # Create account:
+    acc = Account()
+    acc.add(name="Amex", cat_name="Debit", notes="")
+    acc.list()
 
     #trans = Transaction()
     #trans.add("Amex", 50, "")
