@@ -331,6 +331,36 @@ class Transaction(DB):
         self.conn.commit()
         print(f"Added {trans_amount} to account {acc_name}")
         
+    def list(self):
+        """
+        List all transactions
+        """
+        # Connect to db:
+        self.conn, self.cursor = super().connect()
+
+        # Execute query:
+        self.cursor.execute("""
+        SELECT t.trans_id, t.trans_date, accounts.acc_name, 
+        t.trans_amount, t.trans_notes
+        FROM transactions t
+        JOIN accounts ON t.acc_id = accounts.acc_id
+        """)
+        rows = self.cursor.fetchall()
+        trans = [dict(row) for row in rows]
+
+        # List all transactions:
+        print("The available transactions are:")
+        for x in trans:
+            message = (
+            f"ID: {x['trans_id']}\tDate: {x['trans_date']}\t"
+            f"Account: {x['acc_name']}\tAmount: {x['trans_amount']}\t"
+            f"Notes: {x['trans_notes']}"
+            )
+            print(message)
+
+        # Close db:
+        super().close()
+
         
 
 if __name__ == "__main__":
