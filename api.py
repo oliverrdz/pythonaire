@@ -51,10 +51,7 @@ class DB:
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS category (
         cat_id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-        cat_name varchar(100),
-        type_id integer NOT NULL,
-        FOREIGN KEY (type_id) REFERENCES category_type(cat_type_id)
-        )
+        cat_name varchar(100))
         """)
         print("Table category created")
 
@@ -78,8 +75,10 @@ class DB:
         trans_date datetime DEFAULT CURRENT_TIMESTAMP,
         acc_id integer NOT NULL,
         trans_amount float NOT NULL,
+        cat_type_id integer NOT NULL,
         trans_notes text,
-        FOREIGN KEY (acc_id) REFERENCES accounts(acc_id)
+        FOREIGN KEY (acc_id) REFERENCES accounts(acc_id),
+        FOREIGN KEY (cat_type_id) REFERENCES category_type(cat_type_id)
         )
         """)
         print("Table transactions created")
@@ -108,6 +107,68 @@ class DB:
         """
         self.conn.close()
         print(f"\nDatabase {self.db_name} closed.\n")
+
+
+class Category(DB):
+    """
+    Add or list new categories
+    """
+    def __init__(self):
+        super().__init__()
+
+    def add(self, name):
+        """
+        Add a new category
+        """
+        data = (name,)
+
+        # Open or create database:
+        self.conn, self.cursor = super().connect()
+
+        # Check if category name already exists:
+        self.cursor.execute("""
+            SELECT cat_name from category
+        """)
+        rows = self.cursor.fetchall()
+        cat_names = [row[0] for row in rows]
+        if name in cat_names:
+            print(f"Category {name} already exists, pick a new name.")
+        else:
+            # Add new category:
+            self.cursor.execute("""
+                INSERT INTO category (cat_name)
+                VALUES (?)
+            """, data)
+            self.conn.commit()
+            print(f"Category {name} added.")
+
+        # Close database:
+        super().close()
+
+    def list(self):
+        """
+        List all the available categories
+        """
+        # Connect to db:
+        self.conn, self.cursor = super().connect()
+
+        # Execute query:
+        self.cursor.execute("""
+            SELECT category.cat_id, category.cat_name
+            FROM category
+        """)
+        rows = self.cursor.fetchall()
+        self.cat = [dict(row) for row in rows]
+
+        # List all the categories
+        print("The categories available are:")
+        for x in self.cat:
+            print(f"ID: {x['cat_id']}\tName: {x['cat_name']}.")
+
+        # Close db:
+        super().close()
+
+
 
 
 class Account(DB):
@@ -193,68 +254,6 @@ class Account(DB):
 
         # Close db:
         super().close()
-
-
-class Category(DB):
-    """
-    Add or list new categories
-    """
-    def __init__(self):
-        super().__init__()
-
-    def add(self, name, cat_type):
-        """
-        Add a new category
-        """
-        data = (name, cat_type)
-
-        # Open or create database:
-        self.conn, self.cursor = super().connect()
-
-        # Check if category name already exists:
-        self.cursor.execute("""
-            SELECT cat_name from category
-        """)
-        rows = self.cursor.fetchall()
-        cat_names = [row[0] for row in rows]
-        if name in cat_names:
-            print(f"Category {name} already exists, pick a new name.")
-        else:
-            # Add new category:
-            self.cursor.execute("""
-                INSERT INTO category (cat_name, type_id)
-                VALUES (?,?)
-            """, data)
-            self.conn.commit()
-            print(f"Category {name} added.")
-
-        # Close database:
-        super().close()
-
-    def list(self):
-        """
-        List all the available categories
-        """
-        # Connect to db:
-        self.conn, self.cursor = super().connect()
-
-        # Execute query:
-        self.cursor.execute("""
-            SELECT category.cat_id, category.cat_name, category_type.cat_type
-            FROM category
-            JOIN category_type ON category.type_id = category_type.cat_type_id
-        """)
-        rows = self.cursor.fetchall()
-        self.cat = [dict(row) for row in rows]
-
-        # List all the categories
-        print("The categories available are:")
-        for x in self.cat:
-            print(f"ID: {x['cat_id']}\tName: {x['cat_name']}\tType: {x['cat_type']}.")
-
-        # Close db:
-        super().close()
-
 
 
 class Transaction(DB):
@@ -360,14 +359,16 @@ class Transaction(DB):
         
 
 if __name__ == "__main__":
-    #import api 
 
-    cat = Category()
-    cat.list()
+    # Create DB:
+    db = DB()
+    db.setup()
+    #cat = Category()
+    #cat.list()
 
-    acc = Account()
+    #acc = Account()
     #acc.add("Lloyds", "Debit", "")
-    acc.list()
+    #acc.list()
 
     #trans = Transaction()
     #trans.add("Amex", 50, "")
