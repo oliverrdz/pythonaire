@@ -1,2 +1,4 @@
-.penv
+penv
 pythonaire_api/.penv
+*.sqlite3
+__pycache__
