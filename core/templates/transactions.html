@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Transactions</h2>
+<form method="post">{% csrf_token %}
+    <select name="acc_name" required>
+        {% for acc in accounts %}
+        <option value="{{ acc.acc_name }}">{{ acc.acc_name }}</option>
+        {% endfor %}
+    </select>
+    <input type="number" name="trans_amount" placeholder="Amount" required>
+    <select name="cat_type" required>
+        {% for t in types %}
+        <option value="{{ t }}">{{ t }}</option>
+        {% endfor %}
+    </select>
+    <input type="text" name="trans_notes" placeholder="Notes">
+    <button type="submit">Add</button>
+</form>
+<ul>
+{% for t in transactions %}
+    <li>{{ t.acc_name }}: {{ t.trans_amount }} ({{ t.cat_type }}) - {{ t.trans_notes }}</li>
+{% endfor %}
+</ul>
+{% endblock %}

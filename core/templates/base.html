@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pythonaire</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <h1>Pythonaire</h1>
+    <nav>
+        <a href="{% url 'categories' %}">Categories</a> |
+        <a href="{% url 'accounts' %}">Accounts</a> |
+        <a href="{% url 'transactions' %}">Transactions</a>
+    </nav>
+    <hr>
+    {% block content %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pythonaire Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Pythonaire REST API Frontend</h1>
+
+    <section id="categories">
+        <h2>Categories</h2>
+        <form id="category-form">
+            <input type="text" id="category-name" placeholder="New category name" required>
+            <button type="submit">Add Category</button>
+        </form>
+<ul id="transaction-list"></ul>
+        <ul id="category-list"></ul>
+    </section>
+
+    <section id="accounts">
+        <h2>Accounts</h2>
+        <form id="account-form">
+            <input type="text" id="account-name" placeholder="Account name" required>
+            <select id="account-category" required></select>
+            <input type="text" id="account-notes" placeholder="Notes">
+            <button type="submit">Add Account</button>
+        </form>
+<ul id="transaction-list"></ul>
+        <ul id="account-list"></ul>
+    
+</section>
+
+<section id="transactions">
+    <h2>Transactions</h2>
+    <form id="transaction-form">
+        <select id="transaction-account" required></select>
+        <input type="number" id="transaction-amount" placeholder="Amount" required>
+        <select id="transaction-type" required>
+            <option value="">Select type</option>
+            <option value="Income">Income</option>
+            <option value="Expense">Expense</option>
+        </select>
+        <input type="text" id="transaction-notes" placeholder="Notes">
+        <button type="submit">Add Transaction</button>
+    </form>
+<ul id="transaction-list"></ul>
+</section>
+
+<script src="script.js"></script>
+</body>
+</html>

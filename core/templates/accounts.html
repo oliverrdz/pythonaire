@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Accounts</h2>
+<form method="post">{% csrf_token %}
+    <input type="text" name="acc_name" placeholder="Account name" required>
+    <select name="cat_name" required>
+        {% for cat in categories %}
+        <option value="{{ cat.cat_name }}">{{ cat.cat_name }}</option>
+        {% endfor %}
+    </select>
+    <input type="text" name="acc_notes" placeholder="Notes">
+    <button type="submit">Add</button>
+</form>
+<ul>
+{% for acc in accounts %}
+    <li>{{ acc.acc_name }} (cat_id: {{ acc.cat }}) - {{ acc.acc_notes }}</li>
+{% endfor %}
+</ul>
+{% endblock %}
