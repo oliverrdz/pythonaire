@@ -9,8 +9,7 @@ This package provides classes to manage:
 SQLite is used as the database backend.
 """
 
-from .database import DB
-from .models import Category, Account, Transaction
+from .models import DB, Category, Account, Transaction
 
 __all__ = ["DB", "Category", "Account", "Transaction"]
 __version__ = "0.1.0"

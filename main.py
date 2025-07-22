@@ -1,7 +1,7 @@
 import pythonaire as pa
 
 # Generate DB:
-db = pa.database.DB()
+db = pa.DB()
 db.setup()
 
 # Add categories:

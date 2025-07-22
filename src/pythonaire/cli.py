@@ -1,6 +1,5 @@
 import argparse
-from pythonaire.database import DB
-from pythonaire.models import Category, Account, Transaction
+from pythonaire.models import DB, Category, Account, Transaction
 
 def init_db():
     db = DB()
